@@ -1362,7 +1362,7 @@
 								this.settings.core.error.call(this, this._data.core.last_error);
 							}, this));
 				}
-				t = ($.isArray(s) || $.isPlainObject(s)) ? JSON.parse(JSON.stringify(s)) : s;
+				t = s;
 				if(obj.id === '#') {
 					return this._append_json_data(obj, t, function (status) {
 						callback.call(this, status);
