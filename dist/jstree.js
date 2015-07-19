@@ -660,7 +660,7 @@
 								if(o && o.length) { o.children('.jstree-anchor').focus(); }
 								break;
 							case 106: // aria defines * on numpad as open_all - not very common
-								this.open_all();
+								// this.open_all();
 								break;
 							case 36: // home
 								e.preventDefault();
