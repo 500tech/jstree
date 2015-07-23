@@ -43,8 +43,9 @@
 		themes_loaded = [],
 		src = $('script:last').attr('src'),
 		document = window.document, // local variable is always faster to access then a global
-		_node = document.createElement('LI'), _temp1, _temp2;
+		_node = document.createElement('div'), _temp1, _temp2;
 
+	_node.className = 'jstree-li';
 	_node.setAttribute('role', 'treeitem');
 	_temp1 = document.createElement('I');
 	_temp1.className = 'jstree-icon jstree-ocl';
@@ -71,7 +72,7 @@
 		 * specifies the jstree version in use
 		 * @name $.jstree.version
 		 */
-		version : '{{VERSION}}',
+		version : '3.1.0',
 		/**
 		 * holds all the default options used when creating new instances
 		 * @name $.jstree.defaults
@@ -515,16 +516,16 @@
 			 */
 			this.trigger("init");
 
-			this._data.core.original_container_html = this.element.find(" > ul > li").clone(true);
+			this._data.core.original_container_html = this.element.find(" > .jstree-ul > .jstree-li").clone(true);
 			this._data.core.original_container_html
-				.find("li").addBack()
+				.find("div.jstree-li").addBack()
 				.contents().filter(function() {
 					return this.nodeType === 3 && (!this.nodeValue || /^\s+$/.test(this.nodeValue));
 				})
 				.remove();
-			this.element.html("<"+"ul class='jstree-container-ul jstree-children' role='group'><"+"li id='j"+this._id+"_loading' class='jstree-initial-node jstree-loading jstree-leaf jstree-last' role='tree-item'><i class='jstree-icon jstree-ocl'></i><"+"a class='jstree-anchor' href='#'><i class='jstree-icon jstree-themeicon-hidden'></i>" + this.get_string("Loading ...") + "</a></li></ul>");
+			this.element.html("<"+"div class='jstree-container-ul jstree-ul jstree-children' role='group'><"+"<div id='j"+this._id+"_loading' class='jstree-li jstree-initial-node jstree-loading jstree-leaf jstree-last' role='tree-item'><i class='jstree-icon jstree-ocl'></i><"+"a class='jstree-anchor' href='#'><i class='jstree-icon jstree-themeicon-hidden'></i>" + this.get_string("Loading ...") + "</a></div></div>");
 			this.element.attr('aria-activedescendant','j' + this._id + '_loading');
-			this._data.core.li_height = this.get_container_ul().children("li").first().height() || 24;
+			this._data.core.li_height = this.get_container_ul().children("div.jstree-li").first().height() || 24;
 			/**
 			 * triggered after the loading text is shown and before loading starts
 			 * @event
@@ -820,7 +821,8 @@
 							this._data.core.focused = tmp.id;
 						}
 						this.element.find('.jstree-hovered').not(e.currentTarget).mouseleave();
-						$(e.currentTarget).mouseenter();
+				 		this.hover_node(e.currentTarget);
+						// $(e.currentTarget).mouseenter();
 						this.element.attr('tabindex', '-1');
 					}, this))
 				.on('focus.jstree', $.proxy(function () {
@@ -828,13 +830,13 @@
 							was_click = 0;
 							this.get_node(this.element.attr('aria-activedescendant'), true).find('> .jstree-anchor').focus();
 						}
-					}, this))
-				.on('mouseenter.jstree', '.jstree-anchor', $.proxy(function (e) {
-						this.hover_node(e.currentTarget);
-					}, this))
-				.on('mouseleave.jstree', '.jstree-anchor', $.proxy(function (e) {
-						this.dehover_node(e.currentTarget);
 					}, this));
+				// .on('mouseenter.jstree', '.jstree-anchor', $.proxy(function (e) {
+				// 		this.hover_node(e.currentTarget);
+				// 	}, this))
+				// .on('mouseleave.jstree', '.jstree-anchor', $.proxy(function (e) {
+				// 		this.dehover_node(e.currentTarget);
+				// 	}, this));
 		},
 		/**
 		 * part of the destroying of an instance. Used internally.
@@ -1414,7 +1416,7 @@
 			dom = this.get_node(dom);
 			dom.children = [];
 			dom.children_d = [];
-			var dat = data.is('ul') ? data.children() : data,
+			var dat = data.is('div.jstree-ul') ? data.children() : data,
 				par = dom.id,
 				chd = [],
 				dpc = [],
@@ -1933,7 +1935,7 @@
 			if(data.icon === undefined || data.icon === null || data.icon === "") {
 				data.icon = true;
 			}
-			tmp = d.children("ul").children("li");
+			tmp = d.children("div.jstree-ul").children("div.jstree-li");
 			do {
 				tid = 'j' + this._id + '_' + (++this._cnt);
 			} while(m[tid]);
@@ -2182,7 +2184,8 @@
 		 */
 		_redraw : function () {
 			var nodes = this._model.force_full_redraw ? this._model.data['#'].children.concat([]) : this._model.changed.concat([]),
-				f = document.createElement('UL'), tmp, i, j, fe = this._data.core.focused;
+				f = document.createElement('div'), tmp, i, j, fe = this._data.core.focused;
+			f.className = 'jstree-ul';
 			for(i = 0, j = nodes.length; i < j; i++) {
 				tmp = this.redraw_node(nodes[i], true, this._model.force_full_redraw);
 				if(tmp && this._model.force_full_redraw) {
@@ -2249,9 +2252,9 @@
 			node.children('.jstree-children').remove();
 			node = node[0];
 			if(obj.children.length && obj.state.loaded) {
-				k = d.createElement('UL');
+				k = d.createElement('div');
 				k.setAttribute('role', 'group');
-				k.className = 'jstree-children';
+				k.className = 'jstree-children jstree-ul';
 				for(i = 0, j = obj.children.length; i < j; i++) {
 					k.appendChild(this.redraw_node(obj.children[i], true, true));
 				}
@@ -2322,7 +2325,7 @@
 			node = _node.cloneNode(true);
 			// node is DOM, deep is boolean
 
-			c = 'jstree-node ';
+			c = 'jstree-node jstree-li';
 			for(i in obj.li_attr) {
 				if(obj.li_attr.hasOwnProperty(i)) {
 					if(i === 'id') { continue; }
@@ -2395,9 +2398,9 @@
 
 
 			if(deep && obj.children.length && (obj.state.opened || force_render) && obj.state.loaded) {
-				k = d.createElement('UL');
+				k = d.createElement('div');
 				k.setAttribute('role', 'group');
-				k.className = 'jstree-children';
+				k.className = 'jstree-children jstree-ul';
 				for(i = 0, j = obj.children.length; i < j; i++) {
 					k.appendChild(this.redraw_node(obj.children[i], deep, true));
 				}
@@ -2418,9 +2421,9 @@
 					}
 				}
 				if(!tmp) {
-					tmp = d.createElement('UL');
+					tmp = d.createElement('div');
 					tmp.setAttribute('role', 'group');
-					tmp.className = 'jstree-children';
+					tmp.className = 'jstree-children jstree-ul';
 					par.appendChild(tmp);
 				}
 				par = tmp;
@@ -3244,7 +3247,7 @@
 			};
 			var c = this.get_container_ul()[0].className;
 			if(!skip_loading) {
-				this.element.html("<"+"ul class='"+c+"' role='group'><"+"li class='jstree-initial-node jstree-loading jstree-leaf jstree-last' role='treeitem' id='j"+this._id+"_loading'><i class='jstree-icon jstree-ocl'></i><"+"a class='jstree-anchor' href='#'><i class='jstree-icon jstree-themeicon-hidden'></i>" + this.get_string("Loading ...") + "</a></li></ul>");
+				this.element.html("<"+"div class='"+c+"' role='group'><"+"<div class='jstree-li jstree-initial-node jstree-loading jstree-leaf jstree-last' role='treeitem' id='j"+this._id+"_loading'><i class='jstree-icon jstree-ocl'></i><"+"a class='jstree-anchor' href='#'><i class='jstree-icon jstree-themeicon-hidden'></i>" + this.get_string("Loading ...") + "</a></div></div>");
 				this.element.attr('aria-activedescendant','j'+this._id+'_loading');
 			}
 			this.load_node('#', function (o, s) {
