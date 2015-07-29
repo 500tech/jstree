@@ -5212,6 +5212,7 @@
 				"create" : {
 					"separator_before"	: false,
 					"separator_after"	: true,
+					"link"				: null,
 					"_disabled"			: false, //(this.check("create_node", data.reference, {}, "last")),
 					"label"				: "Create",
 					"action"			: function (data) {
@@ -5225,6 +5226,7 @@
 				"rename" : {
 					"separator_before"	: false,
 					"separator_after"	: false,
+					"link"				: null,
 					"_disabled"			: false, //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
 					"label"				: "Rename",
 					/*
@@ -5241,6 +5243,7 @@
 				"remove" : {
 					"separator_before"	: false,
 					"icon"				: false,
+					"link"				: null,
 					"separator_after"	: false,
 					"_disabled"			: false, //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
 					"label"				: "Delete",
@@ -5259,6 +5262,7 @@
 					"separator_before"	: true,
 					"icon"				: false,
 					"separator_after"	: false,
+					"link"				: null,
 					"label"				: "Edit",
 					"action"			: false,
 					"submenu" : {
@@ -5280,6 +5284,7 @@
 						"copy" : {
 							"separator_before"	: false,
 							"icon"				: false,
+							"link"				: null,
 							"separator_after"	: false,
 							"label"				: "Copy",
 							"action"			: function (data) {
@@ -5295,6 +5300,7 @@
 						},
 						"paste" : {
 							"separator_before"	: false,
+							"link"				: null,
 							"icon"				: false,
 							"_disabled"			: function (data) {
 								return !$.jstree.reference(data.reference).can_paste();
@@ -5513,12 +5519,13 @@
 				$.each(o, function (i, val) {
 					if(!val) { return true; }
 					vakata_context.items.push(val);
+					var href = val.link || '#';
 					if(!sep && val.separator_before) {
-						str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + ($.vakata.context.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
+						str += "<"+"li class='vakata-context-separator'><"+"a href='" + href + "' " + ($.vakata.context.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
 					}
 					sep = false;
 					str += "<"+"li class='" + (val._class || "") + (val._disabled === true || ($.isFunction(val._disabled) && val._disabled({ "item" : val, "reference" : vakata_context.reference, "element" : vakata_context.element })) ? " vakata-contextmenu-disabled " : "") + "' "+(val.shortcut?" data-shortcut='"+val.shortcut+"' ":'')+">";
-					str += "<"+"a href='#' rel='" + (vakata_context.items.length - 1) + "'>";
+					str += "<"+"a href='" + href + "' rel='" + (vakata_context.items.length - 1) + "'>";
 					if($.vakata.context.settings.icons) {
 						str += "<"+"i ";
 						if(val.icon) {
@@ -5534,7 +5541,7 @@
 					}
 					str += "<"+"/li>";
 					if(val.separator_after) {
-						str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + ($.vakata.context.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
+						str += "<"+"li class='vakata-context-separator'><"+"a href='" + href + "' " + ($.vakata.context.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
 						sep = true;
 					}
 				});
@@ -5698,11 +5705,16 @@
 					}
 				})
 				.on("click", "a", function (e) {
-					e.preventDefault();
-				//})
-				//.on("mouseup", "a", function (e) {
-					if(!$(this).blur().parent().hasClass("vakata-context-disabled") && $.vakata.context._execute($(this).attr("rel")) !== false) {
+					// Adam - click on link doesn't prevent default, but just closes menu
+					var item = vakata_context.items[$(this).attr("rel")];
+					if (item && item.link) {
 						$.vakata.context.hide();
+					}
+					else {					
+						e.preventDefault();
+						if(!$(this).blur().parent().hasClass("vakata-context-disabled") && $.vakata.context._execute($(this).attr("rel")) !== false) {
+							$.vakata.context.hide();
+						}
 					}
 				})
 				.on('keydown', 'a', function (e) {
