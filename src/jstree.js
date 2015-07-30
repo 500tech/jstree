@@ -523,7 +523,7 @@
 					return this.nodeType === 3 && (!this.nodeValue || /^\s+$/.test(this.nodeValue));
 				})
 				.remove();
-			this.element.html("<"+"div class='jstree-container-ul jstree-ul jstree-children' role='group'><"+"<div id='j"+this._id+"_loading' class='jstree-li jstree-initial-node jstree-loading jstree-leaf jstree-last' role='tree-item'><i class='jstree-icon jstree-ocl'></i><"+"a class='jstree-anchor' href='#'><i class='jstree-icon jstree-themeicon-hidden'></i>" + this.get_string("Loading ...") + "</a></div></div>");
+			this.element.html("<"+"div class='jstree-container-ul jstree-ul jstree-children' role='group'><div id='j"+this._id+"_loading' class='jstree-li jstree-initial-node jstree-loading jstree-leaf jstree-last' role='tree-item'><i class='jstree-icon jstree-ocl'></i><a class='jstree-anchor' href='#'><i class='jstree-icon jstree-themeicon-hidden'></i>" + this.get_string("Loading ...") + "</a></div></div>");
 			this.element.attr('aria-activedescendant','j' + this._id + '_loading');
 			this._data.core.li_height = this.get_container_ul().children("div.jstree-li").first().height() || 24;
 			/**
